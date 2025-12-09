@@ -11,67 +11,53 @@
 
 ## Project Introduction
 
-Phone Agent is a mobile intelligent assistant framework built on AutoGLM. It can understand phone screen content in a
-multimodal way and help users complete tasks through automated operations. The system controls devices through ADB (
-Android Debug Bridge), uses vision-language models for screen perception, and combines intelligent planning capabilities
-to generate and execute operation workflows. Users only need to describe their requirements in natural language, such
-as "Open Xiaohongshu and search for food", and Phone Agent will automatically parse the intent, understand the current
-interface, plan the next action, and complete the entire workflow. The system also has a built-in sensitive operation
-confirmation mechanism and supports manual takeover in login or verification code scenarios. Additionally, it provides
-remote ADB debugging capabilities, allowing device connection via WiFi or network for flexible remote control and
-development.
+Phone Agent is a mobile intelligent assistant framework built on AutoGLM. It understands phone screen content in a multimodal manner and helps users complete tasks through automated operations. The system controls devices via ADB (Android Debug Bridge), perceives screens using vision-language models, and generates and executes operation workflows through intelligent planning. Users simply describe their needs in natural language, such as "Open Xiaohongshu and search for food," and Phone Agent will automatically parse the intent, understand the current interface, plan the next action, and complete the entire workflow. The system also includes a sensitive operation confirmation mechanism and supports manual takeover during login or verification code scenarios. Additionally, it provides remote ADB debugging capabilities, allowing device connection via WiFi or network for flexible remote control and development.
 
-> ⚠️ This project is for research and learning purposes only. It is strictly prohibited to use it for illegal
-> information gathering, system interference, or any illegal activities. Please carefully review
-> the [Terms of Use](resources/privacy_policy.txt).
+> ⚠️ This project is for research and learning purposes only. It is strictly prohibited to use for illegal information acquisition, system interference, or any illegal activities. Please carefully review the [Terms of Use](resources/privacy_policy_en.txt).
 
 ## Model Download Links
 
-| Model            | Download Links                                                                                                                               |
-|------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| AutoGLM-Phone-9B | [🤗 Hugging Face](https://huggingface.co/zai-org/AutoGLM-Phone-9B)<br>[🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/AutoGLM-Phone-9B) |
+| Model             | Download Links                                                                                                                                             |
+|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| AutoGLM-Phone-9B  | [🤗 Hugging Face](https://huggingface.co/zai-org/AutoGLM-Phone-9B)<br>[🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/AutoGLM-Phone-9B)               |
+| AutoGLM-Phone-9B-Multilingual | [🤗 Hugging Face](https://huggingface.co/zai-org/AutoGLM-Phone-9B-Multilingual)<br>[🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/AutoGLM-Phone-9B-Multilingual) |
 
-Currently, this model only supports Chinese. A multilingual version of the model is coming soon.
+`AutoGLM-Phone-9B` is optimized for Chinese mobile applications, while `AutoGLM-Phone-9B-Multilingual` supports English scenarios and is suitable for applications containing English or other language content.
 
 ## Environment Setup
 
 ### 1. Python Environment
 
-Python 3.10 or above is recommended.
+Python 3.10 or higher is recommended.
 
 ### 2. ADB (Android Debug Bridge)
 
-1. Download the official ADB [installation package](https://developer.android.com/tools/releases/platform-tools?hl=en),
-   and extract it to a custom path
+1. Download the official ADB [installation package](https://developer.android.com/tools/releases/platform-tools) and extract it to a custom path
 2. Configure environment variables
 
-- MacOS configuration method: In `Terminal` or any command-line tool
+- MacOS configuration: In `Terminal` or any command line tool
 
   ```bash
-  # Assuming the extracted directory is ~/Downloads/platform-tools. If not, please adjust the command accordingly.
+  # Assuming the extracted directory is ~/Downloads/platform-tools. Adjust the command if different.
   export PATH=${PATH}:~/Downloads/platform-tools
   ```
 
-- Windows configuration method: You can refer to
-  this [third-party tutorial](https://blog.csdn.net/x2584179909/article/details/108319973) for configuration.
+- Windows configuration: Refer to [third-party tutorials](https://blog.csdn.net/x2584179909/article/details/108319973) for configuration.
 
 ### 3. Android 7.0+ Device or Emulator with `Developer Mode` and `USB Debugging` Enabled
 
-1. Enable Developer Mode: The typical method is to find `Settings > About Phone > Build Number` and tap it quickly about
-   10 times until a popup shows "Developer mode enabled". Different phones may vary slightly; if you can't find it,
-   search online for a tutorial.
-2. Enable USB Debugging: After enabling Developer Mode, go to `Settings > Developer Options > USB Debugging` and enable
-   it
-3. Some devices may require a restart after enabling developer options for changes to take effect. You can test it:
-   connect your phone to the computer via USB cable, then run `adb devices` to check if device information appears. If
-   not, the connection has failed.
+1. Enable Developer Mode: The typical method is to find `Settings > About Phone > Build Number` and tap it rapidly about 10 times until a popup shows "Developer mode has been enabled." This may vary slightly between phones; search online for tutorials if you can't find it.
+2. Enable USB Debugging: After enabling Developer Mode, go to `Settings > Developer Options > USB Debugging` and enable it
+3. Some devices may require a restart after setting developer options for them to take effect. You can test by connecting your phone to your computer via USB cable and running `adb devices` to see if device information appears. If not, the connection has failed.
 
-### 4. Install ADB Keyboard (for text input)
+**Please carefully check the relevant permissions**
 
-Download the [installation package](https://github.com/senzhk/ADBKeyBoard/blob/master/ADBKeyboard.apk) and install it on
-the corresponding Android device.
-Note: After installation, you need to enable `ADB Keyboard` in `Settings > Input Method` or `Settings > Keyboard List`
-for it to work.
+![Permissions](resources/screenshot-20251209-181423.png)
+
+### 4. Install ADB Keyboard (for Text Input)
+
+Download the [installation package](https://github.com/senzhk/ADBKeyBoard/blob/master/ADBKeyboard.apk) and install it on the corresponding Android device.
+Note: After installation, you need to enable `ADB Keyboard` in `Settings > Input Method` or `Settings > Keyboard List` for it to work.
 
 ## Deployment Preparation
 
@@ -84,9 +70,9 @@ pip install -e .
 
 ### 2. Configure ADB
 
-Make sure **your USB cable supports data transfer**, not just charging.
+Make sure your **USB cable supports data transfer**, not just charging.
 
-Ensure ADB is installed and connect the device with a **USB cable**:
+Ensure ADB is installed and connect the device via **USB cable**:
 
 ```bash
 # Check connected devices
@@ -97,12 +83,10 @@ adb devices
 # emulator-5554   device
 ```
 
-### 3. Start the Model Service
+### 3. Start Model Service
 
-1. Download the model and install the inference engine framework according to the `For Model Deployment` section in
-   `requirements.txt`.
-2. Start via SGlang / vLLM to get an OpenAI-compatible service. Here's a vLLM deployment solution, please strictly
-   follow our provided startup parameters:
+1. Download the model and install the inference engine framework according to the `For Model Deployment` section in `requirements.txt`.
+2. Start via SGlang / vLLM to get an OpenAI-format service. Here's a vLLM deployment solution; please strictly follow the startup parameters we provide:
 
 - vLLM:
 
@@ -120,11 +104,9 @@ python3 -m vllm.entrypoints.openai.api_server \
  --port 8000
 ```
 
-- This model has the same architecture as `GLM-4.1V-9B-Thinking`. For detailed information about model deployment, you
-  can also check [GLM-V](https://github.com/zai-org/GLM-V) for model deployment and usage guides.
+- This model has the same architecture as `GLM-4.1V-9B-Thinking`. For detailed information about model deployment, you can also check [GLM-V](https://github.com/zai-org/GLM-V) for model deployment and usage guides.
 
-- After successful startup, you can access the model service via `http://localhost:8000/v1`. If you deploy the model on
-  a remote server, use that server's IP to access the model.
+- After successful startup, the model service will be accessible at `http://localhost:8000/v1`. If you deploy the model on a remote server, access it using that server's IP address.
 
 ## Using AutoGLM
 
@@ -137,7 +119,10 @@ Set the `--base-url` and `--model` parameters according to your deployed model. 
 python main.py --base-url http://localhost:8000/v1 --model "autoglm-phone-9b"
 
 # Specify model endpoint
-python main.py --base-url http://localhost:8000/v1 "Find the top-rated cinema nearby and navigate me to there by foot"
+python main.py --base-url http://localhost:8000/v1 "Open Meituan and search for nearby hotpot restaurants"
+
+# Use English system prompt
+python main.py --lang en --base-url http://localhost:8000/v1 "Open Chrome browser"
 
 # List supported apps
 python main.py --list-apps
@@ -159,27 +144,26 @@ model_config = ModelConfig(
 agent = PhoneAgent(model_config=model_config)
 
 # Execute task
-result = agent.run("Open Taobao and search for wireless earphones")
+result = agent.run("Open Taobao and search for wireless earbuds")
 print(result)
 ```
 
 ## Remote Debugging
 
-Phone Agent supports remote ADB debugging via WiFi/network, allowing device control without USB connection.
+Phone Agent supports remote ADB debugging via WiFi/network, allowing device control without a USB connection.
 
 ### Configure Remote Debugging
 
 #### Enable Wireless Debugging on Phone
 
-Make sure the phone and computer are on the same WiFi network, as shown below:
+Ensure the phone and computer are on the same WiFi network, as shown below:
 
 ![Enable Wireless Debugging](resources/setting.png)
 
 #### Use Standard ADB Commands on Computer
 
 ```bash
-
-# Connect via WiFi, change to the IP address and port shown on your phone
+# Connect via WiFi, replace with the IP address and port shown on your phone
 adb connect 192.168.1.100:5555
 
 # Verify connection
@@ -200,7 +184,7 @@ adb connect 192.168.1.100:5555
 adb disconnect 192.168.1.100:5555
 
 # Execute task on specific device
-python main.py --device-id 192.168.1.100:5555 --base-url http://localhost:8000/v1 --model "autoglm-phone-9b" "Open Douyin and browse videos"
+python main.py --device-id 192.168.1.100:5555 --base-url http://localhost:8000/v1 --model "autoglm-phone-9b" "Open TikTok and browse videos"
 ```
 
 ### Python API Remote Connection
@@ -231,18 +215,18 @@ conn.disconnect("192.168.1.100:5555")
 
 ### Remote Connection Troubleshooting
 
-**Connection refused:**
+**Connection Refused:**
 
-- Ensure device and computer are on the same network
-- Check if firewall is blocking port 5555
+- Ensure the device and computer are on the same network
+- Check if the firewall is blocking port 5555
 - Confirm TCP/IP mode is enabled: `adb tcpip 5555`
 
-**Connection dropped:**
+**Connection Dropped:**
 
-- WiFi may have disconnected, use `--connect` to reconnect
-- Some devices disable TCP/IP after restart, requiring USB to re-enable
+- WiFi may have disconnected; use `--connect` to reconnect
+- Some devices disable TCP/IP after restart; re-enable via USB
 
-**Multiple devices:**
+**Multiple Devices:**
 
 - Use `--device-id` to specify which device to use
 - Or use `--list-devices` to view all connected devices
@@ -251,19 +235,22 @@ conn.disconnect("192.168.1.100:5555")
 
 ### Custom SYSTEM PROMPT
 
-Directly modify the configuration file `phone_agent/config/prompts.py`
+The system provides both Chinese and English prompts, switchable via the `--lang` parameter:
 
-1. You can inject system prompts to enhance the model's capabilities in specific domains
-2. You can inject app names to disable certain apps
+- `--lang cn` - Chinese prompt (default), config file: `phone_agent/config/prompts_zh.py`
+- `--lang en` - English prompt, config file: `phone_agent/config/prompts_en.py`
+
+You can directly modify the corresponding config files to enhance model capabilities in specific domains or disable certain apps by injecting app names.
 
 ### Environment Variables
 
-| Variable                | Description        | Default                    |
-|-------------------------|--------------------|----------------------------|
-| `PHONE_AGENT_BASE_URL`  | Model API address  | `http://localhost:8000/v1` |
-| `PHONE_AGENT_MODEL`     | Model name         | `autoglm-phone-9b`         |
-| `PHONE_AGENT_MAX_STEPS` | Max steps per task | `100`                      |
-| `PHONE_AGENT_DEVICE_ID` | ADB device ID      | (auto-detect)              |
+| Variable                  | Description               | Default Value                |
+|---------------------------|---------------------------|------------------------------|
+| `PHONE_AGENT_BASE_URL`    | Model API URL             | `http://localhost:8000/v1`   |
+| `PHONE_AGENT_MODEL`       | Model name                | `autoglm-phone-9b`           |
+| `PHONE_AGENT_MAX_STEPS`   | Maximum steps per task    | `100`                        |
+| `PHONE_AGENT_DEVICE_ID`   | ADB device ID             | (auto-detect)                |
+| `PHONE_AGENT_LANG`        | Language (`cn` or `en`)   | `cn`                         |
 
 ### Model Configuration
 
@@ -286,8 +273,9 @@ config = ModelConfig(
 from phone_agent.agent import AgentConfig
 
 config = AgentConfig(
-    max_steps=100,  # Max steps per task
+    max_steps=100,  # Maximum steps per task
     device_id=None,  # ADB device ID (None for auto-detect)
+    lang="cn",  # Language: cn (Chinese) or en (English)
     verbose=True,  # Print debug info (including thinking process and actions)
 )
 ```
@@ -300,7 +288,7 @@ When `verbose=True`, the Agent outputs detailed information at each step:
 ==================================================
 💭 Thinking Process:
 --------------------------------------------------
-Currently on the system home screen, need to launch the Xiaohongshu app first
+Currently on the system desktop, need to launch Xiaohongshu app first
 --------------------------------------------------
 🎯 Executing Action:
 {
@@ -310,12 +298,12 @@ Currently on the system home screen, need to launch the Xiaohongshu app first
 }
 ==================================================
 
-... (continue to next step after executing action)
+... (continues to next step after executing action)
 
 ==================================================
 💭 Thinking Process:
 --------------------------------------------------
-Xiaohongshu is open, now need to tap the search box
+Xiaohongshu is now open, need to tap the search box
 --------------------------------------------------
 🎯 Executing Action:
 {
@@ -334,18 +322,18 @@ This allows you to clearly see the AI's reasoning process and specific operation
 
 ## Supported Apps
 
-Phone Agent supports 50+ mainstream Chinese apps:
+Phone Agent supports 50+ mainstream Chinese applications:
 
-| Category              | Apps                              |
-|-----------------------|-----------------------------------|
-| Social & Chat         | WeChat, QQ, Weibo                 |
-| E-commerce            | Taobao, JD.com, Pinduoduo         |
-| Food & Delivery       | Meituan, Ele.me, KFC              |
-| Travel                | Ctrip, 12306, Didi                |
-| Video & Entertainment | Bilibili, Douyin, iQiyi           |
-| Music & Audio         | NetEase Music, QQ Music, Ximalaya |
-| Life Services         | Dianping, Amap, Baidu Maps        |
-| Content Communities   | Xiaohongshu, Zhihu, Douban        |
+| Category          | Apps                                    |
+|-------------------|-----------------------------------------|
+| Social & Messaging| WeChat, QQ, Weibo                       |
+| E-commerce        | Taobao, JD.com, Pinduoduo              |
+| Food & Delivery   | Meituan, Ele.me, KFC                   |
+| Travel            | Ctrip, 12306, Did                     |
+| Video & Entertainment | Bilibili, TikTok, iQiyi            |
+| Music & Audio     | NetEase Music, QQ Music, Ximalaya      |
+| Life Services     | Dianping, Amap, Baidu Maps             |
+| Content Communities| Xiaohongshu, Zhihu, Douban            |
 
 Run `python main.py --list-apps` to see the complete list.
 
@@ -353,18 +341,18 @@ Run `python main.py --list-apps` to see the complete list.
 
 The Agent can perform the following actions:
 
-| Action       | Description                             |
-|--------------|-----------------------------------------|
-| `Launch`     | Launch an app                           |  
-| `Tap`        | Tap at specified coordinates            |
-| `Type`       | Input text                              |
-| `Swipe`      | Swipe the screen                        |
-| `Back`       | Go back to previous page                |
-| `Home`       | Return to home screen                   |
-| `Long Press` | Long press                              |
-| `Double Tap` | Double tap                              |
-| `Wait`       | Wait for page to load                   |
-| `Take_over`  | Request manual takeover (login/captcha) |
+| Action         | Description                              |
+|----------------|------------------------------------------|
+| `Launch`       | Launch an app                            |  
+| `Tap`          | Tap at specified coordinates             |
+| `Type`         | Input text                               |
+| `Swipe`        | Swipe the screen                         |
+| `Back`         | Go back to previous page                 |
+| `Home`         | Return to home screen                    |
+| `Long Press`   | Long press                               |
+| `Double Tap`   | Double tap                               |
+| `Wait`         | Wait for page to load                    |
+| `Take_over`    | Request manual takeover (login/captcha)  |
 
 ## Custom Callbacks
 
@@ -379,7 +367,7 @@ def my_confirmation(message: str) -> bool:
 def my_takeover(message: str) -> None:
     """Manual takeover callback"""
     print(f"Please complete manually: {message}")
-    input("Press Enter to continue after completion...")
+    input("Press Enter after completion...")
 
 
 agent = PhoneAgent(
@@ -399,7 +387,7 @@ Check the `examples/` directory for more usage examples:
 
 ## Development
 
-### Configure Development Environment
+### Set Up Development Environment
 
 Development requires dev dependencies:
 
@@ -428,14 +416,15 @@ phone_agent/
 │   └── handler.py       # Action executor
 ├── config/              # Configuration
 │   ├── apps.py          # Supported app mappings
-│   └── prompts.py       # System prompts
+│   ├── prompts_zh.py    # Chinese system prompts
+│   └── prompts_en.py    # English system prompts
 └── model/               # AI model client
     └── client.py        # OpenAI-compatible client
 ```
 
 ## FAQ
 
-We've listed some common issues and their solutions:
+Here are some common issues and their solutions:
 
 ### Device Not Found
 
@@ -455,12 +444,21 @@ adb devices
 
 ### Screenshot Failed (Black Screen)
 
-This usually means the app is displaying a sensitive page (payment, password, banking apps). The Agent will
-automatically detect this and request manual takeover.
+This usually means the app is displaying a sensitive page (payment, password, banking apps). The Agent will automatically detect this and request manual takeover.
+
+### Windows Encoding Issues
+Error message like `UnicodeEncodeError gbk code`
+
+Solution: Add the environment variable before running the code: `PYTHONIOENCODING=utf-8`
+
+### Interactive Mode Not Working in Non-TTY Environment
+Error like: `EOF when reading a line`
+
+Solution: Use non-interactive mode to specify tasks directly, or switch to a TTY-mode terminal application.
 
 ### Citation
 
-If you find our work helpful, please cite the following paper:
+If you find our work helpful, please cite the following papers:
 
 ```bibtex
 @article{liu2024autoglm,

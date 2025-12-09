@@ -8,7 +8,7 @@ from typing import Any, Callable
 from phone_agent.actions import ActionHandler
 from phone_agent.actions.handler import do, finish, parse_action
 from phone_agent.adb import get_current_app, get_screenshot
-from phone_agent.config import SYSTEM_PROMPT
+from phone_agent.config import get_messages, get_system_prompt
 from phone_agent.model import ModelClient, ModelConfig
 from phone_agent.model.client import MessageBuilder
 
@@ -19,8 +19,13 @@ class AgentConfig:
 
     max_steps: int = 100
     device_id: str | None = None
-    system_prompt: str = SYSTEM_PROMPT
+    lang: str = "cn"
+    system_prompt: str | None = None
     verbose: bool = True
+
+    def __post_init__(self):
+        if self.system_prompt is None:
+            self.system_prompt = get_system_prompt(self.lang)
 
 
 @dataclass
@@ -185,13 +190,14 @@ class PhoneAgent:
             action = finish(message=response.action)
 
         if self.agent_config.verbose:
-            # 打印思考过程
+            # Print thinking process
+            msgs = get_messages(self.agent_config.lang)
             print("\n" + "=" * 50)
-            print("💭 思考过程:")
+            print(f"💭 {msgs['thinking']}:")
             print("-" * 50)
             print(response.thinking)
             print("-" * 50)
-            print("🎯 执行动作:")
+            print(f"🎯 {msgs['action']}:")
             print(json.dumps(action, ensure_ascii=False, indent=2))
             print("=" * 50 + "\n")
 
@@ -221,8 +227,11 @@ class PhoneAgent:
         finished = action.get("_metadata") == "finish" or result.should_finish
 
         if finished and self.agent_config.verbose:
+            msgs = get_messages(self.agent_config.lang)
             print("\n" + "🎉 " + "=" * 48)
-            print(f"✅ 任务完成: {result.message or action.get('message', '完成')}")
+            print(
+                f"✅ {msgs['task_completed']}: {result.message or action.get('message', msgs['done'])}"
+            )
             print("=" * 50 + "\n")
 
         return StepResult(

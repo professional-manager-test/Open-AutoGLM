@@ -1,6 +1,6 @@
 # Open-AutoGLM
 
-[Read this in English.](./README_en.md)
+[Readme in English](README_en.md)
 
 <div align="center">
 <img src=resources/logo.svg width="20%"/>
@@ -20,9 +20,12 @@ ADB 调试能力，可通过 WiFi 或网络连接设备，实现灵活的远程�
 
 ## 模型下载地址
 
-| Model            | Download Links                                                                                                                               |
-|------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| AutoGLM-Phone-9B | [🤗 Hugging Face](https://huggingface.co/zai-org/AutoGLM-Phone-9B)<br>[🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/AutoGLM-Phone-9B) |
+| Model             | Download Links                                                                                                                                             |
+|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| AutoGLM-Phone-9B  | [🤗 Hugging Face](https://huggingface.co/zai-org/AutoGLM-Phone-9B)<br>[🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/AutoGLM-Phone-9B)               |
+| AutoGLM-Phone-9B-Multilingual | [🤗 Hugging Face](https://huggingface.co/zai-org/AutoGLM-Phone-9B-Multilingual)<br>[🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/AutoGLM-Phone-9B-Multilingual) |
+
+其中，`AutoGLM-Phone-9B` 是针对中文手机应用优化的模型，而 `AutoGLM-Phone-9B-Multilingual` 支持英语场景，适用于包含英文等其他语言内容的应用。
 
 ## 环境准备
 
@@ -51,6 +54,10 @@ ADB 调试能力，可通过 WiFi 或网络连接设备，实现灵活的远程�
 2. USB 调试启用：启用开发者模式之后，会出现 `设置-开发者选项-USB 调试`，勾选启用
 3. 部分机型在设置开发者选项以后, 可能需要重启设备才能生效. 可以测试一下: 将手机用USB数据线连接到电脑后, `adb devices`
    查看是否有设备信息, 如果没有说明连接失败.
+
+**请务必仔细检查相关权限**
+
+![权限](resources/screenshot-20251209-181423.png)
 
 ### 4. 安装 ADB Keyboard（用于文本输入）
 
@@ -102,7 +109,7 @@ python3 -m vllm.entrypoints.openai.api_server \
  --port 8000
 ```
 
-- 该模型结构与 `GLM-4.1V-9B-Thinking` 相同, 关于模型部署的详细内容，你也可以查看 [GLM-V](https://github.com/zai-org/GLM-V)
+- 该模型结构与 `GLM-4.1V-9B-Thinking` 相同, 关于模型部署的详细内容，你也以查看 [GLM-V](https://github.com/zai-org/GLM-V)
   获取模型部署和使用指南。
 
 - 运行成功后，将可以通过 `http://localhost:8000/v1` 访问模型服务。 如果您在远程服务器部署模型, 使用该服务器的IP访问模型.
@@ -119,6 +126,9 @@ python main.py --base-url http://localhost:8000/v1 --model "autoglm-phone-9b"
 
 # 指定模型端点
 python main.py --base-url http://localhost:8000/v1 "打开美团搜索附近的火锅店"
+
+# 使用英文 system prompt
+python main.py --lang en --base-url http://localhost:8000/v1 "Open Chrome browser"
 
 # 列出支持的应用
 python main.py --list-apps
@@ -232,19 +242,22 @@ conn.disconnect("192.168.1.100:5555")
 
 ### 自定义SYSTEM PROMPT
 
-直接修改配置文件 `phone_agent/config/prompts.py`
+系统提供中英文两套 prompt，通过 `--lang` 参数切换：
 
-1. 可以通过注入system prompt来增强模型在特定领域的能力
-2. 可以通过注入app名称禁用某些app
+- `--lang cn` - 中文 prompt（默认），配置文件：`phone_agent/config/prompts_zh.py`
+- `--lang en` - 英文 prompt，配置文件：`phone_agent/config/prompts_en.py`
+
+可以直接修改对应的配置文件来增强模型在特定领域的能力，或通过注入 app 名称禁用某些 app。
 
 ### 环境变量
 
-| 变量                      | 描述        | 默认值                        |
-|-------------------------|-----------|----------------------------|
-| `PHONE_AGENT_BASE_URL`  | 模型 API 地址 | `http://localhost:8000/v1` |
-| `PHONE_AGENT_MODEL`     | 模型名称      | `autoglm-phone-9b`         |
-| `PHONE_AGENT_MAX_STEPS` | 每个任务最大步数  | `100`                      |
-| `PHONE_AGENT_DEVICE_ID` | ADB 设备 ID | (自动检测)                     |
+| 变量                      | 描述               | 默认值                        |
+|-------------------------|------------------|----------------------------|
+| `PHONE_AGENT_BASE_URL`  | 模型 API 地址        | `http://localhost:8000/v1` |
+| `PHONE_AGENT_MODEL`     | 模型名称             | `autoglm-phone-9b`         |
+| `PHONE_AGENT_MAX_STEPS` | 每个任务最大步数         | `100`                      |
+| `PHONE_AGENT_DEVICE_ID` | ADB 设备 ID        | (自动检测)                     |
+| `PHONE_AGENT_LANG`      | 语言 (`cn` 或 `en`) | `cn`                       |
 
 ### 模型配置
 
@@ -269,6 +282,7 @@ from phone_agent.agent import AgentConfig
 config = AgentConfig(
     max_steps=100,  # 每个任务最大步数
     device_id=None,  # ADB 设备 ID（None 为自动检测）
+    lang="cn",  # 语言选择：cn（中文）或 en（英文）
     verbose=True,  # 打印调试信息（包括思考过程和执行动作）
 )
 ```
@@ -409,7 +423,8 @@ phone_agent/
 │   └── handler.py       # 操作执行器
 ├── config/              # 配置
 │   ├── apps.py          # 支持的应用映射
-│   └── prompts.py       # 系统提示词
+│   ├── prompts_zh.py    # 中文系统提示词
+│   └── prompts_en.py    # 英文系统提示词
 └── model/               # AI 模型客户端
     └── client.py        # OpenAI 兼容客户端
 ```
@@ -437,6 +452,16 @@ adb devices
 ### 截图失败（黑屏）
 
 这通常意味着应用正在显示敏感页面（支付、密码、银行类应用）。Agent 会自动检测并请求人工接管。
+
+### windows 编码异常问题
+报错信息形如 `UnicodeEncodeError gbk code`
+
+解决办法: 在运行代码的命令前面加上环境变量: `PYTHONIOENCODING=utf-8`
+
+### 交互模式非TTY环境无法使用
+报错形如: `EOF when reading a line`
+
+解决办法: 使用非交互模式直接指定任务, 或者切换到 TTY 模式的终端应用.
 
 ### 引用
 

@@ -1,84 +1,64 @@
 #!/usr/bin/env python3
 """
-演示 thinking 输出的示例
+Thinking Output Demo / 演示 thinking 输出的示例
 
+This script demonstrates how the Agent outputs both thinking process and actions in verbose mode.
 这个脚本展示了在 verbose 模式下，Agent 会同时输出思考过程和执行动作。
 """
 
 from phone_agent import PhoneAgent
 from phone_agent.agent import AgentConfig
+from phone_agent.config import get_messages
 from phone_agent.model import ModelConfig
 
 
-def main():
+def main(lang: str = "cn"):
+    msgs = get_messages(lang)
+
     print("=" * 60)
-    print("Phone Agent - Thinking 输出演示")
+    print("Phone Agent - Thinking Demo")
     print("=" * 60)
 
-    # 配置模型
+    # Configure model
     model_config = ModelConfig(
         base_url="http://localhost:8000/v1",
         model_name="autoglm-phone-9b",
         temperature=0.1,
     )
 
-    # 配置 Agent (verbose=True 会输出详细信息)
+    # Configure Agent (verbose=True enables detailed output)
     agent_config = AgentConfig(
         max_steps=10,
-        verbose=True,  # 开启详细输出
+        verbose=True,
+        lang=lang,
     )
 
-    # 创建 Agent
+    # Create Agent
     agent = PhoneAgent(
         model_config=model_config,
         agent_config=agent_config,
     )
 
-    # 执行任务
-    print("\n📱 开始执行任务...\n")
+    # Execute task
+    print(f"\n📱 {msgs['starting_task']}...\n")
     result = agent.run("打开小红书搜索美食攻略")
 
     print("\n" + "=" * 60)
-    print(f"📊 最终结果: {result}")
+    print(f"📊 {msgs['final_result']}: {result}")
     print("=" * 60)
 
 
 if __name__ == "__main__":
-    """
-    运行此脚本，你将看到如下格式的输出：
+    import argparse
 
-    ==================================================
-    💭 思考过程:
-    --------------------------------------------------
-    当前在系统桌面，需要先启动小红书应用，然后进行搜索
-    --------------------------------------------------
-    🎯 执行动作:
-    {
-      "_metadata": "do",
-      "action": "Launch",
-      "app": "小红书"
-    }
-    ==================================================
+    parser = argparse.ArgumentParser(description="Phone Agent Thinking Demo")
+    parser.add_argument(
+        "--lang",
+        type=str,
+        default="cn",
+        choices=["cn", "en"],
+        help="Language for UI messages (cn=Chinese, en=English)",
+    )
+    args = parser.parse_args()
 
-    (执行后会继续下一步...)
-
-    ==================================================
-    💭 思考过程:
-    --------------------------------------------------
-    小红书已打开，现在需要点击搜索框并输入关键词
-    --------------------------------------------------
-    🎯 执行动作:
-    {
-      "_metadata": "do",
-      "action": "Tap",
-      "element": [500, 100]
-    }
-    ==================================================
-
-    ... (更多步骤)
-
-    🎉 ================================================
-    ✅ 任务完成: 已成功搜索美食攻略
-    ==================================================
-    """
-    main()
+    main(lang=args.lang)

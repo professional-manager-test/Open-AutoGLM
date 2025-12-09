@@ -355,6 +355,14 @@ Examples:
     )
 
     parser.add_argument(
+        "--lang",
+        type=str,
+        choices=["cn", "en"],
+        default=os.getenv("PHONE_AGENT_LANG", "cn"),
+        help="Language for system prompt (cn or en, default: cn)",
+    )
+
+    parser.add_argument(
         "task",
         nargs="?",
         type=str,
@@ -467,6 +475,7 @@ def main():
         max_steps=args.max_steps,
         device_id=args.device_id,
         verbose=not args.quiet,
+        lang=args.lang,
     )
 
     # Create agent
@@ -482,6 +491,7 @@ def main():
     print(f"Model: {model_config.model_name}")
     print(f"Base URL: {model_config.base_url}")
     print(f"Max Steps: {agent_config.max_steps}")
+    print(f"Language: {agent_config.lang}")
 
     # Show device info
     devices = list_devices()

@@ -3,6 +3,7 @@
 import base64
 import os
 import subprocess
+import tempfile
 import uuid
 from dataclasses import dataclass
 from io import BytesIO
@@ -36,7 +37,7 @@ def get_screenshot(device_id: str | None = None, timeout: int = 10) -> Screensho
         If the screenshot fails (e.g., on sensitive screens like payment pages),
         a black fallback image is returned with is_sensitive=True.
     """
-    temp_path = f"/tmp/screenshot_{uuid.uuid4()}.png"
+    temp_path = os.path.join(tempfile.gettempdir(), f"screenshot_{uuid.uuid4()}.png")
     adb_prefix = _get_adb_prefix(device_id)
 
     try:
