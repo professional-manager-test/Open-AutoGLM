@@ -27,6 +27,7 @@ from phone_agent.adb import ADBConnection, list_devices
 from phone_agent.agent import AgentConfig
 from phone_agent.config.apps import list_supported_apps
 from phone_agent.model import ModelConfig
+from phone_agent.services.signal_listener import SignalListener
 
 
 def check_system_requirements() -> bool:
@@ -165,6 +166,35 @@ def check_system_requirements() -> bool:
         print("❌ System check failed. Please fix the issues above.")
 
     return all_passed
+
+
+def setup_trading_mode(args, agent):
+    """设置交易模式"""
+    print("💰 启动自动交易模式")
+
+    # 创建交易处理器
+    from phone_agent.actions.trading import TradingActionHandler
+    trading_handler = TradingActionHandler(agent)
+
+    # 创建信号监听器
+    from phone_agent.services.signal_listener import SignalListener
+    signal_listener = SignalListener(trading_handler)
+
+    # 设置信号处理回调
+    def handle_signal(signal_data):
+        try:
+            print(f"📥 接收到交易信号: {signal_data}")
+            result = trading_handler.process_trading_signal(signal_data)
+            print(f"✅ 交易执行结果: {result['message']}")
+        except Exception as e:
+            print(f"❌ 交易执行失败: {e}")
+
+    signal_listener.set_signal_callback(handle_signal)
+
+    # 启动监听
+    signal_listener.start_listening()
+
+    return signal_listener
 
 
 def check_model_api(base_url: str, model_name: str, api_key: str = "EMPTY") -> bool:
@@ -499,30 +529,44 @@ def main():
         agent_config=agent_config,
     )
 
-    # Print header
-    print("=" * 50)
-    print("Phone Agent - AI-powered phone automation")
-    print("=" * 50)
-    print(f"Model: {model_config.model_name}")
-    print(f"Base URL: {model_config.base_url}")
-    print(f"Max Steps: {agent_config.max_steps}")
-    print(f"Language: {agent_config.lang}")
+    # 检查是否为交易模式
+    trading_mode = "--trading" in sys.argv or os.getenv("TRADING_MODE") == "true"
 
-    # Show device info
-    devices = list_devices()
-    if agent_config.device_id:
-        print(f"Device: {agent_config.device_id}")
-    elif devices:
-        print(f"Device: {devices[0].device_id} (auto-detected)")
+    signal_listener = None
+    if trading_mode:
+        signal_listener = setup_trading_mode(args, agent)
+        print("\n🤖 自动交易机器人已就绪，等待交易信号...")
+        print("💡 使用方法:")
+        print("   1. 上游分析师Agent发送JSON格式的交易信号")
+        print("   2. 本Agent自动执行相应的买卖操作")
+        print("   3. 示例信号格式:")
+        print('      {"action": "buy", "stock_code": "000001", "stock_name": "平安银行", "quantity": 100}')
+        print("\n按 Ctrl+C 停止交易机器人")
+    else:
+        # Print header
+        print("=" * 50)
+        print("Phone Agent - AI-powered phone automation")
+        print("=" * 50)
+        print(f"Model: {model_config.model_name}")
+        print(f"Base URL: {model_config.base_url}")
+        print(f"Max Steps: {agent_config.max_steps}")
+        print(f"Language: {agent_config.lang}")
 
-    print("=" * 50)
+        # Show device info
+        devices = list_devices()
+        if agent_config.device_id:
+            print(f"Device: {agent_config.device_id}")
+        elif devices:
+            print(f"Device: {devices[0].device_id} (auto-detected)")
+
+        print("=" * 50)
 
     # Run with provided task or enter interactive mode
     if args.task:
         print(f"\nTask: {args.task}\n")
         result = agent.run(args.task)
         print(f"\nResult: {result}")
-    else:
+    elif not trading_mode:
         # Interactive mode
         print("\nEntering interactive mode. Type 'quit' to exit.\n")
 
@@ -547,6 +591,10 @@ def main():
                 break
             except Exception as e:
                 print(f"\nError: {e}\n")
+
+    # 清理资源
+    # if signal_listener:
+    #     SignalListener().stop_listening()
 
 
 if __name__ == "__main__":
