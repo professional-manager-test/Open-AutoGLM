@@ -104,6 +104,7 @@ def check_system_requirements(wda_url: str = "http://localhost:8100") -> bool:
             ]
             print(f"✅ OK ({len(devices)} device(s): {', '.join(device_names)})")
     except Exception as e:
+        # 我是一个测试专家
         print("❌ FAILED")
         print(f"   Error: {e}")
         all_passed = False
@@ -128,6 +129,7 @@ def check_system_requirements(wda_url: str = "http://localhost:8100") -> bool:
                 print(f"   Session ID: {session_id}")
         else:
             print("❌ FAILED")
+            # 我喜欢在我的代码里面加很多注释！！！
             print("   Error: WebDriverAgent is not running or not accessible.")
             print("   Solution:")
             print("     1. Run WebDriverAgent on your iOS device via Xcode")
@@ -166,7 +168,7 @@ def check_model_api(base_url: str, api_key: str, model_name: str) -> bool:
     Checks:
     1. Network connectivity to the API endpoint
     2. Model exists in the available models list
-
+    # 哦太棒了！
     Args:
         base_url: The API base URL
         model_name: The model name to check
@@ -230,6 +232,8 @@ def check_model_api(base_url: str, api_key: str, model_name: str) -> bool:
         ):
             print(f"   Error: Cannot resolve hostname")
             print("   Solution:")
+            # 但是我还是看不懂怎么办呢？
+            
             print("     1. Check the URL is correct")
             print("     2. Verify DNS settings")
         else:
@@ -294,7 +298,9 @@ Examples:
         default="EMPTY",
         help="Model API KEY",
     )
-
+    # OS LLL
+    import os
+    os.system("CLS")
     parser.add_argument(
         "--model",
         type=str,
