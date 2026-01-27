@@ -64,6 +64,8 @@ APP_PACKAGES: dict[str, str] = {
     "安居客": "com.anjuke.android.app",
     # Finance
     "同花顺": "com.hexin.plat.android",
+    "东方财富": "com.eastmoney.android.berlin",
+    "eastmoney": "com.eastmoney.android.berlin",
     # Games
     "星穹铁道": "com.miHoYo.hkrpg",
     "崩坏：星穹铁道": "com.miHoYo.hkrpg",
